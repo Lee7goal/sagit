@@ -1,0 +1,61 @@
+import os
+import re
+import nltk
+from nltk.corpus import stopwords
+from nltk.corpus import wordnet
+import collections
+import time
+import enchant
+
+def read_file_as_str(file_path):
+    # 判断路径文件存在
+    if not os.path.isfile(file_path):
+        raise TypeError(file_path + " does not exist")
+
+    return open(file_path).read()
+
+def filter_text(text):
+    # 对文本按照句子进行分割
+    sens = nltk.sent_tokenize(text)
+    print("文本按照句子进行分割完成！")
+    words = []
+    english_punctuations = [',', '.', ':', ';', '?', '(', ')', '[', ']', '&', '!', '*', '@', '#', '$', '%']
+    english_stopwords = stopwords.words('english')
+    dic = enchant.Dict("en_US")
+    a = 0
+    for sent in sens:
+        a = a + 1
+        if(a == 20):
+            break
+        if(len(sent) < 10):
+            continue
+        # 对句子进行分词
+        m = nltk.word_tokenize(sent)
+        texts_filtered = []
+        for i in m:
+                # 去除标点符号
+            if (i not in english_punctuations
+                and not i.isdigit()
+                and len(i) > 1
+                # and not i.isalpha()
+                # 去除停用词
+                and i not in english_stopwords
+                # 检查拼写错误问题
+                and dic.check(i)):
+                texts_filtered.append(i)
+        words = words + texts_filtered
+    return words
+
+
+if __name__ == '__main__':
+    starttime = time.time()
+    all_the_text = read_file_as_str('cnki.xml')
+    print("读取文本完成！耗时：{0}." . format(time.time() - starttime))
+    p = re.compile('<[^>]+>')
+    text = p.sub(" ", all_the_text).lower()
+    print("正则表达式(re)删除非文本部分,并将英文单词统一为小写完成！耗时：{0}." . format(time.time() - starttime))
+    words = []
+    words = filter_text(text)
+    print("去停用词,检查拼写错误问题完成！耗时：{0}." . format(time.time() - starttime))
+    print(collections.Counter(words).most_common(30))
+    print("统计词频完成！耗时：{0}.".format(time.time() - starttime))
