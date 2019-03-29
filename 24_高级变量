@@ -1,0 +1,18 @@
+def test(num):
+
+    print("在函数内部 %d 对a应的内存地址是 %d" % (num,id(num)))
+
+    result = "hello"
+    print("函数要返回数据的内存地址是 %d" % id(result))
+    return result
+# 1.定义一个数字的变量
+a = 10
+
+print("a变量保存数据的内存地址是 %d "% id(a))
+
+# 2.调用test函数
+# 注意，如果函数有返回值，没有定义变量接受
+# 程序不会报错无法获得返回结果
+r = test(a)
+
+print("%s的内存地址是 %d"%(r,id(r)))
